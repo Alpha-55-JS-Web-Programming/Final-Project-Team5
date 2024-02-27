@@ -2,17 +2,22 @@ export function SidebarMenu() {
     return (
         <div className="sidebar-menu w-full lg:w-[75px] shadow lg:flex lg:flex-col flex flex-row justify-between items-center fixed lg:relative z-40 bottom-0 bg-white dark:bg-zinc-600 ">
             <div className="hidden lg:my-5 lg:block">
-                <a href="index.html" className="block dark:hidden">
+                {/* <a href="index.html" className="block dark:hidden"> */}
+                <NavLink to='/index' className="block dark:hidden">   
                     <span>
                         <img src="../../../public/assets/images/logo.svg" alt="" className="h-[30px]" />
                     </span>
-                </a>
+                {/* </a> */}
+                </NavLink> 
 
-                <a href="index.html" className="hidden dark:block">
+                {/* <a href="index.html" className="hidden dark:block"> */}
+                <NavLink to='/index' className="hidden dark:block">
+
                     <span>
                         <img src="../../../public/assets/images/logo.svg" alt="" className="h-[30px]" />
                     </span>
-                </a>
+                </NavLink>
+                {/* </a> */}
             </div>
             {/* <!-- end navbar-brand-box --> */}
 
