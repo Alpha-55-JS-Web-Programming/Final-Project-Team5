@@ -33,7 +33,7 @@ export function LockScreen() {
             <div className="mx-5 lg:mx-20 lg:col-start-5 lg:col-span-4">
               <div className="text-center">
                 {/* <a href="index.html" className="block mb-10"> */}
-                <NavLink to="/index">Index</NavLink>
+                <NavLink to="/index" className="block mb-10" >Index</NavLink>
                   <img
                     src="assets/images/logo-dark.png"
                     alt=""
@@ -107,10 +107,11 @@ export function LockScreen() {
                     {" "}
                     Sign in{" "}
                   </a>{" "} */}
+                  <NavLink to="/login" className="fw-medium text-violet-500" >Login</NavLink>
                 </p>
                 <p className="text-gray-700 dark:text-gray-200">
-                  © Chatvia. Crafted with{" "}
-                  <i className="text-red-500 mdi mdi-heart" /> by Themesbrand
+                  © ChatApp. Crafted{" "}
+                  <i className="text-red-500 mdi mdi-heart" /> by Andrey, Zvezdy, Marty
                 </p>
               </div>
             </div>
