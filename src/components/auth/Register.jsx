@@ -187,7 +187,7 @@ export function Register() {
                       </div>
                       <div className="mt-5 text-center">
                         <p className="mb-0 text-gray-500 dark:text-gray-300">
-                          By registering you agree to the Chatvia{" "}
+                          By registering you agree to the ZAMO Chat App{" "}
                           <a href="#" className="text-violet-500"> Terms of Use </a>
                         </p>
                       </div>

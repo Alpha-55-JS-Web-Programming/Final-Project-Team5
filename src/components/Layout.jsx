@@ -4,7 +4,7 @@ import { AppBar } from "./AppBar";
 export function Layout({ selectedAppBarButton, sideBarContent, mainContent, UserProfileDetailsContent }) {
     return (
         <>
-            <Meta title={'Chat App'}></Meta>
+            <Meta title={'ZAMO Chat App'}></Meta>
 
             <div className="lg:flex">
                 {/* <!-- Start left sidebar-menu --> */}

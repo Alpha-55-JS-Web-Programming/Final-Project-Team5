@@ -18,7 +18,7 @@ export function RecoverPassword() {
                   <img src="/assets/images/logo-light.png" alt="" className="hidden h-8 mx-auto logo-light dark:block" />
                 </NavLink>
                 <h4 className="mb-2 text-gray-800 text-21 dark:text-gray-50"> Reset Password </h4>
-                <p className="mb-6 text-gray-500 dark:text-gray-300"> Reset Password With Chatvia. </p>
+                <p className="mb-6 text-gray-500 dark:text-gray-300"> Reset Password With ZAMO Chat App. </p>
               </div>
               <div className="bg-white card dark:bg-zinc-800 dark:border-transparent">
                 <div className="p-5">
