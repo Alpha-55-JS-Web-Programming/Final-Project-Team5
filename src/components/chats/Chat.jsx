@@ -113,7 +113,7 @@ export function Chat({ id, toolbar }) {
                                                 <div>
                                                     <div className="flex gap-2 mb-2  ">
                                                         <div className={`relative px-5 py-3 text-white rounded-lg ${message.senderName === user.username ? 'ltr:rounded-bl-none' : 'ltr:rounded-br-none'} bg-violet-500`}>
-                                                            <p className="mb-0" >
+                                                            <div className="mb-0" >
                                                                 {/* {message.content} */}
                                                                 {editedMessage === message.id ? (
                                                                     <div>
@@ -137,7 +137,7 @@ export function Chat({ id, toolbar }) {
                                                                     ):
                                                                     message.content
                                                                 )}
-                                                            </p>
+                                                            </div>
                                                             <p className="mt-1 mb-0 text-xs text-right text-white/50"><i className="align-middle ri-time-line"></i> <span className="align-middle">    {`${new Date(message.timestamp).toLocaleDateString()} ${new Date(message.timestamp).toLocaleTimeString().replace(/:\d+ [AP]M/, '')}`}</span></p>
 
                                                             <div className={`text-xs text-right mt-1 mb-0 cursor: pointer`} >
