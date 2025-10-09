@@ -103,7 +103,7 @@ npm run preview
 2. **Message Notifications**
    - **Issue:** Testers noted that incoming messages were easy to miss (no visual indicators).
    - **Next Step:** Plan to add unread counters and “new message” badges for better UX.
-   - **Lesson:** Functionality ≠ usability. Testing with real people reveals hidden UX gaps.
+   - **Lesson:** Testing with no dev people(or people who did not work on this project) reveals hidden UX gaps.
 
 3. **Mobile WebRTC Alerts**
    - **Issue:** Rare alerts appeared on mobile after granting camera/mic access, before the stream rendered.
@@ -114,7 +114,7 @@ npm run preview
    - **Issue:** Video calls didn't work for one of the testers.
    - **Cause:** The reason it fails is network-dependent.
    - **Next Step:** Gather more testers on different networks.
-   - - **Fix:** Added TURN server
+   - **Fix:** Added TURN server
    - **Lesson:** Big apps like Viber, WhatsApp, Messenger run massive TURN server infrastructure all over the world. When a P2P connection fails (which happens often due to NAT/firewall), the call automatically falls back to a relay server. These servers are optimized for performance and reliability, often with multiple transport protocols (UDP, TCP, TLS) to traverse restrictive networks.
 
 ### Test Accounts:
