@@ -114,7 +114,8 @@ npm run preview
    - **Issue:** Video calls didn't work for one of the testers.
    - **Cause:** The reason it fails is network-dependent.
    - **Next Step:** Gather more testers on different networks.
-   - **Lesson:** Big apps like Viber, WhatsApp, Messenger run massive TURN server infrastructure all over the world. When a P2P connection fails (which happens often due to NAT/firewall), the call automatically falls back to a relay server. These servers are optimized for performance and reliability, often with multiple transport protocols (UDP, TCP, TLS) to traverse restrictive networks. They don’t just try one ICE candidate — they try all possible paths (local IP, STUN-derived public IP, TURN relay) in parallel. While DIY average Firebase + WebRTC setup can fail on some networks — relying on standard STUN/TURN, not aggressive network fallback.
+   - - **Fix:** Added TURN server
+   - **Lesson:** Big apps like Viber, WhatsApp, Messenger run massive TURN server infrastructure all over the world. When a P2P connection fails (which happens often due to NAT/firewall), the call automatically falls back to a relay server. These servers are optimized for performance and reliability, often with multiple transport protocols (UDP, TCP, TLS) to traverse restrictive networks.
 
 ### Test Accounts:
 
