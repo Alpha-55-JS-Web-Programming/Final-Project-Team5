@@ -2,7 +2,7 @@ import { useContext, useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { AppContext } from "../../AppContext";
 import { ChatButton } from "./ChatButton";
-import { subscribeToUserFriendsListChanges } from "../../service/users.service";
+import { subscribeToUserFriendsListChanges } from "../../service/friend.service";
 import { createRoom, getRoomByParticipants } from "../../service/message.service";
 
 export function Chats() {

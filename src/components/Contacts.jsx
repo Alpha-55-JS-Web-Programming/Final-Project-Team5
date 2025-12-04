@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useAuthState } from "react-firebase-hooks/auth";
 import { auth } from "../service/firebase-config";
 import {
@@ -8,8 +8,8 @@ import {
   acceptFriendRequest,
   rejectFriendRequest,
   subscribeToUserFriendsListChanges,
-  getUserByUsername,
-} from "../service/users.service";
+} from "../service/friend.service";
+import { getUserByUid, getUserByUsername } from "../service/users.service";
 
 export function Contacts() {
   const [user] = useAuthState(auth);
@@ -22,108 +22,106 @@ export function Contacts() {
 
   const [searchInputValue, setSearchInputValue] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
+  
   const handleFriendMenu = (index) => {
     const updatedFriendsList = [...friendsList];
     updatedFriendsList[index].isOpen = !updatedFriendsList[index].isOpen;
     setFriendsList(updatedFriendsList);
   };
 
-  const filteredFriends = friendsList.filter((friend) =>
-    friend.username.toLowerCase().includes(searchInputValue.toLowerCase())
+  const filteredFriends = friendsList.filter((f) =>
+    f.username.toLowerCase().includes(searchInputValue.toLowerCase())
   );
 
+
+
+  const toggleModal = () => setIsContactModalVisible((v) => !v);
+
+  // Subscribe to incoming + sent requests
   useEffect(() => {
     if (!user) return;
-  
-    const unsubscribe = subscribeToFriendRequests(user.uid, (requests) => {
-    console.log(requests);
-    console.log(friendRequests);
-    //      setFriendRequests({...requests, type: "received" });
-      setFriendRequests(requests);
-      setHasPendingRequests(requests.length > 0);
+
+    const unsubscribe = subscribeToFriendRequests(user.uid, (list) => {
+      setFriendRequests(list);
+      setHasPendingRequests(list.length > 0);
     });
-  
-    return () => {
-      if (unsubscribe){
-        unsubscribe();
-      };
-    };
-    
+
+    return unsubscribe;
   }, [user]);
-  
+
+  // Subscribe to friends list
   useEffect(() => {
-    if (user) {
-      subscribeToUserFriendsListChanges(user.uid, setFriendsList);
-    }
+    if (!user) return;
+
+    const unsubscribe = subscribeToUserFriendsListChanges(
+      user.uid,
+      (list) => setFriendsList(list)
+    );
+
+    return unsubscribe;
   }, [user]);
 
-  const toggleModal = () => {
-    setIsContactModalVisible(!isContactModalVisible);
-  };
+  const clearAfterDelay = (setter, ms = 2000) =>
+    setTimeout(() => setter(""), ms);
 
-  const handleSendInvitation = async () => {
+  // Send Invitation
+  const handleSendInvitation = useCallback(async () => {
     try {
-      const targetUser = await getUserByUsername(usernameInputValue);
-      console.log("Target user fetched:", targetUser);
-      if (!targetUser) throw new Error("User not found");
-      const tid = Object.keys(targetUser)[0];
-      console.log(`Sending friend request to UID: ${tid}`);
-  
-      await sendFriendRequest(user.uid, tid);
-    
-      setFriendRequests((prev) => [
-        ...prev,
-        {  type: "sent" },
-      ]);  
-      setSubscriptionMessage(`Invitation sent to ${usernameInputValue}`);
+      if (!usernameInputValue.trim()) return;
+
+      const found = await getUserByUsername(usernameInputValue.trim());
+      if (!found) {
+        setErrorMessage("User not found.");
+        return clearAfterDelay(setErrorMessage);
+      }
+
+      const [recipientUid, recipientData] = Object.entries(found)[0];
+      const senderUid = user.uid;
+
+      // Prevent inviting yourself
+      if (recipientUid === senderUid) {
+        setErrorMessage("You cannot send a request to yourself.");
+        return clearAfterDelay(setErrorMessage);
+      }
+
+      const me = await getUserByUid(senderUid);
+
+      // Already friends
+      if (me.friendsList?.[recipientUid]) {
+        setErrorMessage("User is already a friend.");
+        return clearAfterDelay(setErrorMessage);
+      }
+
+      // Already sent request
+      if (me.sentRequests?.[recipientUid]) {
+        setErrorMessage("You already sent a request.");
+        return clearAfterDelay(setErrorMessage);
+      }
+
+      // They sent you a request already
+      if (me.pendingRequests?.[recipientUid]) {
+        setErrorMessage("This user already sent you a request.");
+        return clearAfterDelay(setErrorMessage);
+      }
+
+      // Send request
+      await sendFriendRequest(senderUid, recipientUid);
+
+      setSubscriptionMessage(`Invitation sent to ${recipientData.username}`);
       setIsContactModalVisible(false);
-      setTimeout(clearSubscriptionMessage, 2000);
-    } catch (error) {
-      console.error(error);
-      setErrorMessage("Error sending invitation. Please try again.");
-      setTimeout(clearErrorMessage, 2000);
+      clearAfterDelay(setSubscriptionMessage);
+    } catch (err) {
+      console.error(err);
+      setErrorMessage("Error sending invitation.");
+      clearAfterDelay(setErrorMessage);
     }
-  };
-  
-  const clearErrorMessage = () => {
-    setErrorMessage("");
-  };
+  }, [usernameInputValue, user]);
 
-  const clearSubscriptionMessage = () => {
-    setSubscriptionMessage("");
-  };
+  // Accept / Reject / Remove
+  const handleAcceptRequest = (uid) => acceptFriendRequest(user.uid, uid);
+  const handleRejectRequest = (uid) => rejectFriendRequest(user.uid, uid);
+  const handleRemoveFriend = (uid) => removeFriend(user.uid, uid);
 
-  const handleAcceptRequest = async (senderUid) => {
-    try {
-      console.log("Attempting to accept friend request...");
-      await acceptFriendRequest(user.uid, senderUid);
-      setFriendRequests((prevRequests) =>
-        prevRequests.filter((request) => request.uid !== senderUid)
-      );
-    } catch (error) {
-      console.error("Error accepting friend request:", error);
-    }
-  };
-
-  const handleRejectRequest = async (senderUid) => {
-    try {
-      console.log("Rejecting friend request...");
-      await rejectFriendRequest(user.uid, senderUid);
-    } catch (error) {
-      console.error("Error rejecting friend request:", error);
-    }
-  };
-
-  const handleRemoveFriend = async (friendUid) => {
-    try {
-      await removeFriend(user.uid, friendUid);
-      console.log("Friend removed successfully from Firebase.");
-
-      setFriendsList(friendsList.filter((friend) => friend.uid !== friendUid));
-    } catch (error) {
-      console.error("Error removing friend:", error);
-    }
-  };
 
   return (
     <>
@@ -391,3 +389,4 @@ export function Contacts() {
     </>
   );
 }
+
