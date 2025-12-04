@@ -115,7 +115,6 @@ npm run preview
    - **Cause:** The reason it fails is network-dependent.
    - **Next Step:** Gather more testers on different networks.
    - **Fix:** Added TURN server
-   - **Lesson:** Big apps like Viber, WhatsApp, Messenger run massive TURN server infrastructure all over the world. When a P2P connection fails (which happens often due to NAT/firewall), the call automatically falls back to a relay server. These servers are optimized for performance and reliability, often with multiple transport protocols (UDP, TCP, TLS) to traverse restrictive networks.
 
 ### Test Accounts:
 

@@ -4,7 +4,7 @@ import { getAuth, onAuthStateChanged } from "firebase/auth";
 import { AppContext } from "../AppContext";
 import { useNavigate, useParams } from "react-router-dom";
 import { Channels } from "./Channels";
-import { subscribeToUserFriendsListChanges } from '../service/users.service';
+import { subscribeToUserFriendsListChanges } from '../service/friend.service';
 
 export function Groups() {
   const [isModalVisible, setIsModalVisible] = useState(false);

@@ -3,7 +3,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import { getChannelsIdsByGroup, getChannelsAll, createChannel, deleteChannel, addPeopleToGroup, getGroup } from "../service/groupAndChannel.service";
 import { AppContext } from "../AppContext";
 import { getAuth, onAuthStateChanged } from "firebase/auth";
-import { subscribeToUserFriendsListChanges } from "../service/users.service";
+import { subscribeToUserFriendsListChanges } from "../service/friend.service";
 
 export function Channels() {
   const [channels, setChannels] = useState({});
