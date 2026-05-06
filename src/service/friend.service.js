@@ -79,7 +79,7 @@ export function subscribeToUserFriendsListChanges(uid, callback) {
     const friendList = await Promise.all(
       Object.keys(friends).map(async (friendUid) => {
         const user = await getUserByUid(friendUid);
-        return { uid: friendUid, username: user.username, profilePhotoURL: user.profilePhotoURL };
+        return { uid: friendUid, username: user.username, profilePhotoURL: user.profilePhotoURL || {} };
       })
     );
 

@@ -1,9 +1,10 @@
-import { get, set, ref, query, equalTo, orderByChild, update, onValue } from "firebase/database";
+import { get, set, ref, query, equalTo, orderByChild, update, onValue, serverTimestamp } from "firebase/database";
 import { db } from "./firebase-config";
 import { format } from "date-fns";
+import { profilePhotoResolverByUserUid } from "./MediaResolver.service";
 
 export const getAllUsers = async () => {
-  const snapshot = await get(query(ref(db, "users")));
+  const snapshot = await get(ref(db, "users"));
   if (!snapshot.exists()) {
     return [];
   }
@@ -20,7 +21,13 @@ export const getUserByUid = async (uid) => {
   if (!snapshot.exists()) {
     throw new Error("User " + uid + " does not exist.");
   }
-  return snapshot.val();
+  const user = snapshot.val();
+  const profilePhotoURL = await profilePhotoResolverByUserUid(uid);
+
+  return {
+    ...user,
+    profilePhotoURL
+  }
 };
 
 export const createUserProfile = (
@@ -44,14 +51,15 @@ export const createUserProfile = (
     password,
     phoneNumber,
     createdOnReadable: readableDate,
+    timestamp: serverTimestamp(),
     role,
     status,
     friendsList,
     sentRequests,
     pendingRequests,
-    profilePhotoURL: "",
-    profileBackgroundURL: "",
-    fileURL: "",
+    profilePhotoId: null,
+    profileBackgroundId: null,
+    fileIds: {},
     location: "",
   });
 };
@@ -78,5 +86,12 @@ export const getUserByUsername = async (username) => {
   if (!snapshot.exists()) {
     throw new Error("User with username " + username + " does not exist.");
   }
-  return snapshot.val();
+  const user = snapshot.val();
+  const uid = user.uid;
+  const profilePhotoURL = await profilePhotoResolverByUserUid(uid);
+
+  return {
+    ...user,
+    profilePhotoURL
+  }
 };
