@@ -38,8 +38,19 @@ export async function uploadProfileImage(file, user, setLoading) {
   try {
     await uploadBytes(fileRef, file);
     const photoURL = await getDownloadURL(fileRef);
-    console.log(user);
-    await updateUserData(user.uid, { profilePhotoURL: photoURL });
+ 
+    const newMediaRef = push(ref(db, 'media'));
+    const mediaId = newMediaRef.key;
+  
+    await set(newMediaRef, {
+      id: mediaId,
+      url: photoURL,
+      owner: user.uid,
+      type: "profile",
+      createdAt: Date.now(),
+    });
+  
+    await updateUserData(user.uid, { profilePhotoId: mediaId });
 
     setLoading(false);
     alert("Profile image uploaded successfully.");
@@ -58,7 +69,18 @@ export async function uploadBackgroundPhoto(backgroundfile, user, setLoading2) {
   try {
     await uploadBytes(backgroundFileRef, backgroundfile);
     const photoURL = await getDownloadURL(backgroundFileRef);
-    await updateUserData(user.uid, { profileBackgroundURL: photoURL });
+    const newMediaRef = push(ref(db, "media"));
+    const mediaId = newMediaRef.key;
+
+    await set(newMediaRef, {
+      id: mediaId,
+      url: photoURL,
+      owner: user.uid,
+      type: "background",
+      createdAt: Date.now(),
+    });
+
+    await updateUserData(user.uid, { profileBackgroundId: mediaId });
 
     setLoading2(false);
     alert("Background image uploaded successfully.");
@@ -70,20 +92,29 @@ export async function uploadBackgroundPhoto(backgroundfile, user, setLoading2) {
 }
 
 // uploadFile
-export async function uploadFile(file, user, setLoading) {
-  const fileRef = storageRef(storage, user.uid + "/" + file.name);
-  setLoading(true);
+export async function uploadFile(file, user) {
+  const fileRef = storageRef(storage, `${user.uid}/files/${Date.now()}_${file.name}`);
 
   try {
     await uploadBytes(fileRef, file);
     const fileURL = await getDownloadURL(fileRef);
-    await updateUserData(user.uid, { fileURL: fileURL });
 
-    setLoading(false);
-    alert("File uploaded successfully.");
-    return fileURL;
+    const newMediaRef = push(ref(db, "media"));
+    const mediaId = newMediaRef.key;
+
+    await set(newMediaRef, {
+      id: mediaId,
+      url: fileURL,
+      owner: user.uid,
+      type: "file",
+      name: file.name,
+      createdAt: Date.now(),
+    });
+
+    await update(ref(db, `users/${user.uid}/fileIds/${mediaId}`), true);
+
+    return mediaId;
   } catch (error) {
     console.error("Error uploading file:", error);
-    setLoading(false);
   }
 }

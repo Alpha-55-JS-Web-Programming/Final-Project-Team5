@@ -1,26 +1,39 @@
-import { onValue, push, ref, remove, set, update, get } from "firebase/database";
+import { onValue, push, ref, remove, set, update, get, serverTimestamp } from "firebase/database";
 import { db } from "./firebase-config";
-import { getStorage, ref as refFromURL, deleteObject} from 'firebase/storage';
+import { getStorage, ref as refFromURL, deleteObject } from 'firebase/storage';
+import { mediaResolverMessagePic } from "./MediaResolver.service";
 
-const date = new Date().toLocaleDateString();
-const time = new Date().toLocaleTimeString().replace(/:\d+ [AP]M/, "");
-const date2 = `${date} ${time}`;
+const date2 = serverTimestamp();
 
 export const getMessages = (id, setMessages, setLoadingMessages) => {
   try {
     if (!id) {
       console.log("No channel ID provided.");
-      return () => {};
+      return () => { };
     }
     const messagesRef = ref(db, `rooms/${id}/messages`);
-    const unsubscribe = onValue(messagesRef, (snapshot) => {
+    const unsubscribe = onValue(messagesRef, async (snapshot) => {
       const messageData = snapshot.val();
       if (messageData) {
         const messageList = Object.keys(messageData).map((key) => ({
           id: key,
           ...messageData[key],
         }));
-        setMessages(messageList);
+        // Resolve media
+        const resolvedMessages = await Promise.all(
+          messageList.map(async (msg) => {
+            if (msg.pic) {
+              const url = await mediaResolverMessagePic(msg.pic);
+              return {
+                ...msg,
+                picURL: url, 
+              };
+            }
+            return msg;
+          })
+        );
+
+        setMessages(resolvedMessages);
       } else {
         setMessages([]);
       }
@@ -30,7 +43,7 @@ export const getMessages = (id, setMessages, setLoadingMessages) => {
     return unsubscribe;
   } catch (error) {
     console.error("Error fetching messages:", error);
-    return () => {};
+    return () => { };
   }
 };
 
@@ -40,7 +53,6 @@ export const sendMessage = async (newMessage, id, userData) => {
     senderName: userData.username,
     content: newMessage,
     timestamp: date2,
-    avatar: userData?.profilePhotoURL || null,
   };
 
   const newMessageRef = await push(ref(db, `rooms/${id}/messages`), message);
@@ -169,14 +181,13 @@ export const createRoom = async (participants) => {
   };
 };
 
-export const sendPicMessage = async (newMessage, id, userData, picURL) => {
+export const sendPicMessage = async (newMessage = '', id, userData, mediaId) => {
   const message = {
     senderId: userData.uid,
-    pic: picURL,
+    pic: mediaId,// reference to media
     senderName: userData.username,
     content: newMessage,
     timestamp: date2,
-    avatar: userData?.profilePhotoURL || null,
   };
 
   const newMessageRef = await push(ref(db, `rooms/${id}/messages`), message);
@@ -188,7 +199,7 @@ export const sendPicMessage = async (newMessage, id, userData, picURL) => {
 
 export const handleDeletePicFromStorage = async (picURL) => {
   const storage = getStorage();
-  const fileRef = refFromURL(storage, picURL); 
+  const fileRef = refFromURL(storage, picURL);
   try {
     await deleteObject(fileRef);
     console.log("Picture deleted successfully");

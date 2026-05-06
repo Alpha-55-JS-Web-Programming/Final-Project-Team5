@@ -2,6 +2,7 @@ import { useState, useEffect, useContext, useRef, useLayoutEffect, } from "react
 import { AppContext } from "../../AppContext";
 import { ChatUploadFile } from "./ChatUploadFile";
 import { getMessages, editMessage, sendMessage, deleteMessage, reactToMessage, handleDeletePicFromStorage, } from "../../service/message.service";
+import { DEFAULT_IMAGE } from "../../service/MediaResolver.service";
 
 export function Chat({ id, toolbar }) {
   const { user } = useContext(AppContext);
@@ -143,7 +144,12 @@ export function Chat({ id, toolbar }) {
                                   </div>
                                 ) :
                                   message.pic ? (
-                                    <img src={message.pic} alt="Uploaded" style={{ maxHeight: "100px" }} />
+                                    <img src={message.pic || DEFAULT_IMAGE} 
+                                    onError={(e) => {
+                                      e.target.src = DEFAULT_IMAGE;
+                                    }} 
+                                    alt="Uploaded" 
+                                    style={{ maxHeight: "100px" }} />
                                   ) : (
                                     message.content
                                   )}

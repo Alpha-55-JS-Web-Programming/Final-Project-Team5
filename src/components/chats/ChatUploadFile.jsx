@@ -1,14 +1,13 @@
 import { useState, useContext } from "react";
-import { storage } from "../../service/firebase-config";
 import { AppContext } from "../../AppContext";
-import { getDownloadURL, getStorage, ref as storageRef, uploadBytes } from 'firebase/storage';
 import { sendMessage, sendPicMessage } from "../../service/message.service";
+import { uploadFile } from "../../service/auth.service";
 
 export function ChatUploadFile({id}) {
     const { user } = useContext(AppContext);
     const [file, setFile] = useState(null);
     const [picURL, setPicURL] = useState('');
-
+   
    async function handleUploadFile(e) {
         e.preventDefault();
         if (e.target.files[0] !== null) {
@@ -18,17 +17,6 @@ export function ChatUploadFile({id}) {
         }
     }
 
-
-    const uploadFileToStorage = (file) => {
-        const fileRef = storageRef(storage, `${user.uid}/${file.name}`);
-        return uploadBytes(fileRef, file)
-            .then(() => getDownloadURL(fileRef))
-            .catch((error) => {
-                console.error('Error uploading file:', error);
-                throw error; 
-            });
-    };
-
     const handleMessageSend = async (file) => {
         try {
             if (!file) {
@@ -36,8 +24,8 @@ export function ChatUploadFile({id}) {
                 return;
             }
 
-            const picURL = await uploadFileToStorage(file);
-            await sendPicMessage(picURL, id, user, picURL);
+            const mediaId = await   uploadFile(file, user);
+            await sendPicMessage('', id, user, mediaId);
             setPicURL('')
             setFile(null);
         } catch (error) {
