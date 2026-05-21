@@ -119,7 +119,7 @@ export function Chat({ id, toolbar }) {
                     <li key={message.id} className="clear-both py-4">
                       <div className={`flex mr-7 items-end gap-3 ${message.senderId === user.uid ? "justify-start" : "justify-end"}`}>
                         <div>
-                          <img src={message?.avatar || "https://thinksport.com.au/wp-content/uploads/2020/01/avatar-.jpg"} alt="" className="rounded-full h-9 w-9" />
+                          <img src={(message.senderId === user.uid ? user?.profilePhotoURL : toolbar.props.otherUser?.profilePhotoURL) || "https://thinksport.com.au/wp-content/uploads/2020/01/avatar-.jpg"} alt="" className="rounded-full h-9 w-9" />
                         </div>
 
                         <div>

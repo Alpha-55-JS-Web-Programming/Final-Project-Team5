@@ -1,8 +1,10 @@
 import { createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, getAuth, updateEmail, } from "firebase/auth";
-import { auth } from "./firebase-config";
+import { auth, db } from "./firebase-config";
 import { storage } from "./firebase-config";
 import { uploadBytes, ref as storageRef, getDownloadURL, } from "firebase/storage";
 import { updateUserData } from "./users.service";
+import { push, ref, update } from "firebase/database";
+import { set } from "date-fns";
 
 export const registerUser = (email, password) => {
   return createUserWithEmailAndPassword(auth, email, password);
@@ -29,6 +31,31 @@ export const updateUserEmail = async (newEmail) => {
   }
 };
 
+export const uploadPictureURL = async (url, user, setLoading) => {
+  const mediaRef = ref(db, "media");
+  const newMediaRef = push(mediaRef);
+  const mediaId = newMediaRef?.key
+
+  const mediaData = {
+    id: mediaId,
+    url: url,
+    owner: user.uid,
+    type: "profile",
+    createdAt: Date.now(),
+  };
+  try {
+    await update(ref(db, `media/${mediaId}`), mediaData );;
+    await update(ref(db, `users/${user.uid}`), { profilePhotoId: mediaId });
+
+    setLoading(false);
+    alert("Profile image uploaded successfully.");
+    return mediaData;
+  } catch (error) {
+    console.error("Error uploading profile image:", error);
+    setLoading(false);
+  }
+}
+
 // Storage
 // uploadProfileImage
 export async function uploadProfileImage(file, user, setLoading) {
@@ -38,10 +65,10 @@ export async function uploadProfileImage(file, user, setLoading) {
   try {
     await uploadBytes(fileRef, file);
     const photoURL = await getDownloadURL(fileRef);
- 
+
     const newMediaRef = push(ref(db, 'media'));
     const mediaId = newMediaRef.key;
-  
+
     await set(newMediaRef, {
       id: mediaId,
       url: photoURL,
@@ -49,7 +76,7 @@ export async function uploadProfileImage(file, user, setLoading) {
       type: "profile",
       createdAt: Date.now(),
     });
-  
+
     await updateUserData(user.uid, { profilePhotoId: mediaId });
 
     setLoading(false);
