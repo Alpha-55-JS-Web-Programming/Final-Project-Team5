@@ -79,6 +79,33 @@ export const editMessage = async (mId, newContent, id, messages) => {
   }
 };
 
+export const deleteAllAvatars = async () => {
+
+  try {
+    const roomsRef = ref(db, "rooms");
+    const snapshot = await get(roomsRef);
+
+    if (!snapshot.exists()) return;
+
+    const rooms = snapshot.val();
+    const updates = {};
+
+    Object.entries(rooms).forEach(([roomId, room]) => {
+      Object.entries(room.messages ?? {}).forEach(([mId, message]) => {
+        if (message.avatar !== undefined) {
+          updates[`rooms/${roomId}/messages/${mId}/avatar`] = null;
+        }
+      });
+    });
+
+    await update(ref(db), updates);
+
+    console.log("Avatars deleted successfully.");
+  } catch (error) {
+    console.error("Error deleting avatars:", error);
+  }
+};
+
 export const deleteMessage = async (mId, id) => {
   try {
     const messageRef = ref(db, `rooms/${id}/messages/${mId}`);

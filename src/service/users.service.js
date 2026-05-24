@@ -1,7 +1,7 @@
 import { get, set, ref, query, equalTo, orderByChild, update, onValue, serverTimestamp } from "firebase/database";
 import { db } from "./firebase-config";
 import { format } from "date-fns";
-import { profilePhotoResolverByUserUid } from "./MediaResolver.service";
+import { profileBackgroundResolverByUserUid, profilePhotoResolverByUserUid } from "./MediaResolver.service";
 
 export const getAllUsers = async () => {
   const snapshot = await get(ref(db, "users"));
@@ -23,10 +23,13 @@ export const getUserByUid = async (uid) => {
   }
   const user = snapshot.val();
   const profilePhotoURL = await profilePhotoResolverByUserUid(uid);
+  const profileBackgroundURL = await profileBackgroundResolverByUserUid(uid);
+
 
   return {
     ...user,
-    profilePhotoURL
+    profilePhotoURL,
+    profileBackgroundURL
   }
 };
 
@@ -89,9 +92,11 @@ export const getUserByUsername = async (username) => {
   const user = snapshot.val();
   const uid = user.uid;
   const profilePhotoURL = await profilePhotoResolverByUserUid(uid);
+  const profileBackgroundURL = await profileBackgroundResolverByUserUid(uid);
 
   return {
     ...user,
-    profilePhotoURL
+    profilePhotoURL, 
+    profileBackgroundURL
   }
 };

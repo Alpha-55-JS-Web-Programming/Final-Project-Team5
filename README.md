@@ -2,7 +2,7 @@
 
 ### Description
 
-Zamo is a cutting-edge application crafted for today's dynamic individuals and teams. Designed with modernity in mind, Zamo offers a comprehensive solution for real-time communication and collaboration. Whether it's chat or video calls, our platform ensures seamless interaction among users. Share information, exchange resources, and spark discussions with ease. Zamo is more than just an app. It's a partner in fostering meaningful connections and collaborative success.
+Zamo is a cutting-edge responsive application crafted for today's dynamic individuals and teams. Designed with modernity in mind, Zamo offers a comprehensive solution for real-time communication and collaboration. Whether it's chat or video calls, our platform ensures seamless interaction among users. Share information, exchange resources, and spark discussions with ease. Zamo is more than just an app. It's a partner in fostering meaningful connections and collaborative success.
 
 [![Live Demo](https://img.shields.io/badge/Live_Demo-Vercel-000?logo=vercel)](https://zamo-chat-app.vercel.app)
 
@@ -17,6 +17,7 @@ Zamo is a cutting-edge application crafted for today's dynamic individuals and t
 
 <p align="center">
   <img src="https://img.shields.io/badge/React-20232A?logo=react&logoColor=61DAFB"/>
+  <img src="https://img.shields.io/badge/Context_API-3178C6?logo=react&logoColor=white"/>
   <img src="https://img.shields.io/badge/React_Router-CA4245?logo=react-router&logoColor=white"/>
   <img src="https://img.shields.io/badge/HTML5-E34F26?logo=html5&logoColor=white"/>
   <img src="https://img.shields.io/badge/TailwindCSS-06B6D4?logo=tailwindcss&logoColor=white"/>
@@ -93,28 +94,30 @@ npm run preview
 ![GIF](public/assets/images/video.gif)
 <br/>
 
-### Known Issues & Lessons Learned
+### Known Issues
 
 1. **Routing on Vercel**
    - **Issue:** Initial deployment returned `NOT_FOUND` when refreshing routes.
    - **Fix:** Added `vercel.json` rewrite to serve `index.html` for all paths.
-   - **Lesson:** Single Page Applications require explicit route handling in production.
 
 2. **Message Notifications**
    - **Issue:** Testers noted that incoming messages were easy to miss (no visual indicators).
    - **Next Step:** Plan to add unread counters and “new message” badges for better UX.
-   - **Lesson:** Testing with no dev people(or people who did not work on this project) reveals hidden UX gaps.
 
 3. **Mobile WebRTC Alerts**
    - **Issue:** Rare alerts appeared on mobile after granting camera/mic access, before the stream rendered.
    - **Status:** Intermittent, not consistently reproducible.
-   - **Lesson:** Mobile browsers handle permissions and track negotiation differently. Needs further investigation.
 
 4. **WebRTC and varying NAT/firewall restrictions**
-   - **Issue:** Video calls didn't work for one of the testers.
+   - **Issue:** Video calls didn't work for two of the testers.
    - **Cause:** The reason it fails is network-dependent.
-   - **Next Step:** Gather more testers on different networks.
    - **Fix:** Added TURN server
+
+5. **Firebase Storage quota caused 402 errors**
+    - **Issue:** Media requests broke user fetch
+    - **Fix:** Fixed by decoupling media from user data & fallback avatars
+    - **Status:** Send picture, upload avatar, background picture are dependent on Firebase Storage 
+    - **Next Step:** Plan to add restricted-resource handling and graceful degradation for storage-dependent features.
 
 ### Test Accounts:
 

@@ -1,24 +1,22 @@
 import React, { useContext, useState } from "react";
 import { AppContext } from "../AppContext";
+import { logoutUser } from "../service/auth.service";
 import {
-  logoutUser,
-  uploadBackgroundPhoto,
-  uploadProfileImage,
-} from "../service/auth.service";
+  uploadPictureURL
+} from "../service/media.service";
 import { updateUserData } from "../service/users.service";
+import { useNavigate } from "react-router-dom";
 
 export function ProfileDialog({ onClose }) {
   const { user, setUser } = useContext(AppContext);
+  const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
-  const [loading2, setLoading2] = useState(false);
-
   const [open, setOpen] = useState(false);
   const [openStatusDropdown, setOpenStatusDropdown] = useState(false);
-
   const [editUsername, setEditUsername] = useState(false);
   const [editEmail, setEditEmail] = useState(false);
   const [editLocation, setEditLocation] = useState(false);
-
+  const [editProfilePhotoURL, setEditProfilePhotoURL] = useState(false);
   const [editedUsername, setEditedUsername] = useState(
     user ? user.username : ""
   );
@@ -26,47 +24,26 @@ export function ProfileDialog({ onClose }) {
   const [editedLocation, setEditedLocation] = useState(
     user ? user.location : ""
   );
-
   const [localStatus, setLocalStatus] = useState(
     user ? user.status : "Loading..."
   );
-
+  const [editedProfilePhotoURL, setEditedProfilePhotoURL] = useState('');
+  
   const toggleDropdown = (dropdownSetter) => {
     dropdownSetter((prevState) => !prevState);
   };
 
-  async function handleUploadPhoto(e) {
-    if (!user) return;
-    const photo = e.target.files[0];
-    if (photo) {
+  async function handleUploadPhoto() {
+    if (!editedProfilePhotoURL.trim()) return;
+    const url = editedProfilePhotoURL;
+    if (url) {
       try {
-        const profilePhotoURL = await uploadProfileImage(
-          photo,
-          user,
-          setLoading
-        );
-        await updateUserData(user?.uid, { profilePhotoURL });
-        setUser({ ...user, profilePhotoURL });
+        await uploadPictureURL(url, user, setLoading)
+        setUser({ ...user, profilePhotoURL: url });
+        setEditProfilePhotoURL(false);
+        setEditedProfilePhotoURL("");
       } catch (e) {
         console.error("Error uploading profile image:", e);
-      }
-    }
-  }
-
-  async function handleBackgroundPhoto(e) {
-    if (!user) return;
-    const photo = e.target.files[0];
-    if (photo) {
-      try {
-        const profileBackgroundURL = await uploadBackgroundPhoto(
-          photo,
-          user,
-          setLoading2
-        );
-        await updateUserData(user?.uid, { profileBackgroundURL });
-        setUser({ ...user, profileBackgroundURL });
-      } catch (e) {
-        console.error("Error uploading background image:", e);
       }
     }
   }
@@ -183,7 +160,7 @@ export function ProfileDialog({ onClose }) {
             >
               <input
                 type="file"
-                onChange={handleBackgroundPhoto}
+                onChange={() => { alert("This feature is currently unavailable.") }}
                 id="background-img-file"
                 name="backgroundFile"
                 className="hidden"
@@ -225,7 +202,7 @@ export function ProfileDialog({ onClose }) {
                 <ul
                   className={`${
                     open ? "visible" : "invisible"
-                  } absolute z-50 block w-40 text-left list-none bg-red-700 border border-transparent rounded shadow-lg rtl:right-auto rtl:left-0 ltr:left-auto ltr:right-0 my-7 bg-clip-padding dark:bg-zinc-700 dark:shadow-sm dark:border-zinc-600`}
+                    } absolute z-50 block w-40 text-left list-none bg-red-700 border border-transparent rounded shadow-lg rtl:right-auto rtl:left-0 ltr:left-auto ltr:right-0 my-7 bg-clip-padding dark:bg-zinc-700 dark:shadow-sm dark:border-zinc-600`}
                   aria-labelledby="dropdownMenuButtonA"
                 >
                   <li>
@@ -263,16 +240,9 @@ export function ProfileDialog({ onClose }) {
           {/* Profile picture */}
           <div className="p-6 text-center">
             <div className="mb-4 relative flex flex-col items-start justify-end top-24">
-              <input
-                type="file"
-                onChange={handleUploadPhoto}
-                id="profile-img-file"
-                name="file"
-                className="hidden"
-              />
               <label
                 disabled={loading}
-                htmlFor="profile-img-file"
+                onClick={() => setEditProfilePhotoURL(true)}
                 className="left-40 absolute bottom-6 pt-2 ri-pencil-fill w-10 h-10 bg-gray-100 rounded-full dark:bg-zinc-800 dark:text-gray-100 cursor-pointer hover:bg-gray-200"
               />
               <img
@@ -285,6 +255,45 @@ export function ProfileDialog({ onClose }) {
               />
             </div>
           </div>
+
+          {/* edit profile picture */}
+          {editProfilePhotoURL && (
+            <div className="fixed inset-0 z-60 flex items-center justify-center backdrop-blur-sm bg-black/30">
+
+              <div className="bg-white dark:bg-zinc-800 p-4 rounded-lg w-[300px]">
+
+                <input
+                  value={editedProfilePhotoURL}
+                  onChange={(e) => setEditedProfilePhotoURL(e.target.value)}
+                  type="text"
+                  placeholder="Paste image URL..."
+                  className="w-full p-2 mb-3 border rounded border-gray-200 dark:border-zinc-600"
+                />
+
+                <div className="flex justify-end gap-2">
+
+                  <button
+                    onClick={() => {
+                      setEditProfilePhotoURL(false);
+                      setEditedProfilePhotoURL("");
+                    }}
+                    className="px-3 py-1 rounded bg-gray-200 dark:bg-zinc-700"
+                  >
+                    Cancel
+                  </button>
+
+                  <button
+                    onClick={handleUploadPhoto}
+                    className="px-3 py-1 rounded bg-blue-500 text-white"
+                  >
+                    Save
+                  </button>
+
+                </div>
+              </div>
+            </div>
+          )}
+
         </div>
         {/* End profile Header */}
 
@@ -309,7 +318,7 @@ export function ProfileDialog({ onClose }) {
                   <span
                     className={`text-${
                       localStatus === "Online" ? "green" : "red"
-                    }-500 mr-2`}
+                      }-500 mr-2`}
                   >
                     <i className={`ri-record-circle-fill text-10`} />
                   </span>
@@ -318,13 +327,13 @@ export function ProfileDialog({ onClose }) {
                 <i
                   className={`mdi mdi-chevron-down ${
                     openStatusDropdown ? "transform rotate-180" : ""
-                  } text-gray-400`}
+                    } text-gray-400`}
                 />
               </button>
               <div
                 className={`${
                   openStatusDropdown ? "" : "hidden"
-                } absolute z-10 mt-1 w-full bg-white dark:bg-gray-700 shadow-lg rounded-md`}
+                  } absolute z-10 mt-1 w-full bg-white dark:bg-gray-700 shadow-lg rounded-md`}
               >
                 <ul className="py-1">
                   <li>
@@ -368,6 +377,7 @@ export function ProfileDialog({ onClose }) {
             </div>
           </div>
 
+          {/* Username*/}
           <div className="pt-3">
             <div>
               <div>
