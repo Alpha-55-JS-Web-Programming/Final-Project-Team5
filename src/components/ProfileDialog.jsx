@@ -1,27 +1,22 @@
 import React, { useContext, useState } from "react";
 import { AppContext } from "../AppContext";
+import { logoutUser } from "../service/auth.service";
 import {
-  logoutUser,
-  uploadBackgroundPhoto,
-  uploadProfileImage,
   uploadPictureURL
-} from "../service/auth.service";
+} from "../service/media.service";
 import { updateUserData } from "../service/users.service";
 import { useNavigate } from "react-router-dom";
 
 export function ProfileDialog({ onClose }) {
   const { user, setUser } = useContext(AppContext);
+  const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
-  const [loading2, setLoading2] = useState(false);
-
   const [open, setOpen] = useState(false);
   const [openStatusDropdown, setOpenStatusDropdown] = useState(false);
-
   const [editUsername, setEditUsername] = useState(false);
   const [editEmail, setEditEmail] = useState(false);
   const [editLocation, setEditLocation] = useState(false);
   const [editProfilePhotoURL, setEditProfilePhotoURL] = useState(false);
-
   const [editedUsername, setEditedUsername] = useState(
     user ? user.username : ""
   );
@@ -29,13 +24,11 @@ export function ProfileDialog({ onClose }) {
   const [editedLocation, setEditedLocation] = useState(
     user ? user.location : ""
   );
-
   const [localStatus, setLocalStatus] = useState(
     user ? user.status : "Loading..."
   );
-
   const [editedProfilePhotoURL, setEditedProfilePhotoURL] = useState('');
-  const navigate = useNavigate();
+  
   const toggleDropdown = (dropdownSetter) => {
     dropdownSetter((prevState) => !prevState);
   };
@@ -51,24 +44,6 @@ export function ProfileDialog({ onClose }) {
         setEditedProfilePhotoURL("");
       } catch (e) {
         console.error("Error uploading profile image:", e);
-      }
-    }
-  }
-
-  async function handleBackgroundPhoto(e) {
-    if (!user) return;
-    const photo = e.target.files[0];
-    if (photo) {
-      try {
-        const profileBackgroundURL = await uploadBackgroundPhoto(
-          photo,
-          user,
-          setLoading2
-        );
-        await updateUserData(user?.uid, { profileBackgroundURL });
-        setUser({ ...user, profileBackgroundURL });
-      } catch (e) {
-        console.error("Error uploading background image:", e);
       }
     }
   }

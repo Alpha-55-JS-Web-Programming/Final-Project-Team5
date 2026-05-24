@@ -1,7 +1,7 @@
 import { useState, useContext } from "react";
 import { AppContext } from "../../AppContext";
-import { sendMessage, sendPicMessage } from "../../service/message.service";
-import { uploadFile } from "../../service/auth.service";
+import { sendPicMessage } from "../../service/message.service";
+import { uploadFile } from "../../service/media.service";
 
 export function ChatUploadFile({id}) {
     const { user } = useContext(AppContext);

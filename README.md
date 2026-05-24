@@ -117,7 +117,7 @@ npm run preview
     - **Issue:** Media requests broke user fetch
     - **Fix:** Fixed by decoupling media from user data & fallback avatars
     - **Status:** Send picture, upload avatar, background picture are dependent on Firebase Storage 
-    - **Next Step:** Plan to add restricted-resource handling and graceful degradation for media-dependent features.
+    - **Next Step:** Plan to add restricted-resource handling and graceful degradation for storage-dependent features.
 
 ### Test Accounts:
 
