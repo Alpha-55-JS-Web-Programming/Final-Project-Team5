@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useEffect, useState, useRef } from "react";
 import { AppContext } from "./AppContext";
-import { listenForIncomingCall } from "./service/firebase-video";
+import { listenForIncomingCall } from "./service/videoCall.service";
 
 export const CallContext = createContext();
 

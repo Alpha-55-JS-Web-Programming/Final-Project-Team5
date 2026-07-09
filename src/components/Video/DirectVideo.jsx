@@ -16,7 +16,7 @@ import {
   listenForIceCandidates,
   listenForIncomingCall,
   deleteTableRow,
-} from "../../service/firebase-video";
+} from "../../service/videoCall.service";
 import { useLocation, useParams } from "react-router-dom";
 import { useCall } from "../../CallContext";
 
